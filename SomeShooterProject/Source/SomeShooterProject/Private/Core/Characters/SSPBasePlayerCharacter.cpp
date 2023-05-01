@@ -4,8 +4,11 @@
 #include "Core/Characters/SSPBasePlayerCharacter.h"
 #include "Core/Characters/Components/SSPCharacterMovementComponent.h"
 #include "Core/Characters/Components/SSPHealthComponent.h"
+#include "Core/Characters/Components/SSPWeaponComponent.h"
+#include "Core/Weapons/SSPBaseWeapon.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -23,8 +26,9 @@ ASSPBasePlayerCharacter::ASSPBasePlayerCharacter(const FObjectInitializer& ObjIn
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
     SpringArmComponent->bUsePawnControlRotation = true;
-    SpringArmComponent->TargetArmLength = 250.0f;
-    SpringArmComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
+    SpringArmComponent->TargetArmLength = 300.0f;
+    //SpringArmComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
+    SpringArmComponent->SocketOffset = FVector(0.0f, 50.0f, 70.0f);
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
@@ -33,6 +37,9 @@ ASSPBasePlayerCharacter::ASSPBasePlayerCharacter(const FObjectInitializer& ObjIn
 
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
     HealthTextComponent->SetupAttachment(GetRootComponent());
+    HealthTextComponent->SetOwnerNoSee(true);
+
+    BaseWeaponComponent = CreateDefaultSubobject<USSPWeaponComponent>("BaseWeaponComponent");
 }
 
 // Called when the game starts or when spawned
@@ -74,6 +81,7 @@ void ASSPBasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
     check(PlayerInputComponent);
+    check(BaseWeaponComponent);
 
     //Axis Mapping
     PlayerInputComponent->BindAxis("MoveForward", this, &ASSPBasePlayerCharacter::MoveForward);
@@ -90,6 +98,13 @@ void ASSPBasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
     PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASSPBasePlayerCharacter::OnStartSprinting);
     PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASSPBasePlayerCharacter::OnStopSprinting);
+
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASSPBasePlayerCharacter::CanFire);
+    PlayerInputComponent->BindAction("Fire", IE_Released, BaseWeaponComponent, &USSPWeaponComponent::StopFire);
+
+    PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, BaseWeaponComponent, &USSPWeaponComponent::NextWeapon);
+
+    PlayerInputComponent->BindAction("Reload", IE_Pressed, BaseWeaponComponent, &USSPWeaponComponent::Reload);
 }
 
 void ASSPBasePlayerCharacter::MoveForward(float Amount)
@@ -149,11 +164,19 @@ void ASSPBasePlayerCharacter::OnStopRunning()
 void ASSPBasePlayerCharacter::OnStartSprinting()
 {
     bIsSprinting = true;
+    BaseWeaponComponent->StopFire();
 }
 
 void ASSPBasePlayerCharacter::OnStopSprinting()
 {
     bIsSprinting = false;
+}
+
+void ASSPBasePlayerCharacter::CanFire()
+{
+    if (bIsSprinting) return;
+
+    BaseWeaponComponent->StartFire();
 }
 
 bool ASSPBasePlayerCharacter::IsSprinting() const
@@ -197,6 +220,9 @@ void ASSPBasePlayerCharacter::OnDeath()
     {
         Controller->ChangeState(NAME_Spectating);
     }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    BaseWeaponComponent->StopFire();
 }
 
 void ASSPBasePlayerCharacter::OnHealthChanged(float Health) 

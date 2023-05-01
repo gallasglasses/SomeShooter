@@ -13,6 +13,7 @@ class USpringArmComponent;
 class UTextRenderComponent;
 
 class USSPHealthComponent;
+class USSPWeaponComponent;
 
 UCLASS()
 class SOMESHOOTERPROJECT_API ASSPBasePlayerCharacter : public ACharacter
@@ -36,6 +37,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
         UTextRenderComponent* HealthTextComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+        USSPWeaponComponent* BaseWeaponComponent;
 
     UPROPERTY(EditDefaultsOnly, Category = "Animations")
         UAnimMontage* DeathAnimMontage;
@@ -86,6 +90,7 @@ private:
     void OnStopRunning();
     void OnStartSprinting();
     void OnStopSprinting();
+    void CanFire();
     void OnDeath();
     void OnHealthChanged(float Health);
 

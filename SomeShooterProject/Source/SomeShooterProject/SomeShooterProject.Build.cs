@@ -16,7 +16,12 @@ public class SomeShooterProject : ModuleRules
 		{ 
 			"SomeShooterProject/Public/Core/Characters", 
 			"SomeShooterProject/Public/Core/Characters/Components",
-            "SomeShooterProject/Public/Core/Interactables"
+            "SomeShooterProject/Public/Core/Interactables",
+            "SomeShooterProject/Public/Core/Weapons",
+            "SomeShooterProject/Public/Core/UI",
+            "SomeShooterProject/Public/Core/Animations",
+            "SomeShooterProject/Public/Core/",
+            "SomeShooterProject/Public/"
         });
 
 		// Uncomment if you are using Slate UI
