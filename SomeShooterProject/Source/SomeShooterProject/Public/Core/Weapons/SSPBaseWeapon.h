@@ -22,6 +22,9 @@ public:
     void ChangeClip();
     bool CanReload() const;
 
+    FWeaponUIData GetCurrentUIData() const {return UIData;};
+    FAmmoData GetCurrentAmmoData() const {return CurrentAmmo;};
+
 protected:
 
     /*UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -35,6 +38,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     FAmmoData DefaultAmmo{15, 10, false};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+    FWeaponUIData UIData;
 
 	virtual void BeginPlay() override;
 	virtual void MakeShot();

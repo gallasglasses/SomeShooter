@@ -21,6 +21,10 @@ public:
     void StopFire();
     void NextWeapon();
     void Reload();
+
+    bool GetCurrentWeaponUIData(FWeaponUIData& UIData) const;
+    bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
+    bool GetCurrentWeaponType(ECharacterWeapon& WeaponType) const;
     
 protected:
     

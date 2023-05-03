@@ -82,15 +82,15 @@ void USSPWeaponComponent::EquipWeapon(ECharacterWeapon WeaponType)
     {
         CurrentWeapon->StopFire();
         AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponArmorySocketName);
-        if (WeaponType == ECharacterWeapon::ShotGun && CurrentWeapon == *MapWeapons.Find(WeaponType))
-        {
-            EquipAnimInProgress = true;
-            PlayAnimMontage(UnequipAnimMontage);
-        }
-        else if (WeaponType == ECharacterWeapon::Riffle && CurrentWeapon == *MapWeapons.Find(WeaponType))
+        if (WeaponType == ECharacterWeapon::ShotGun && CurrentWeapon != *MapWeapons.Find(WeaponType))
         {
             EquipAnimInProgress = true;
             PlayAnimMontage(EquipAnimMontage);
+        }
+        else if (WeaponType == ECharacterWeapon::Riffle && CurrentWeapon != *MapWeapons.Find(WeaponType))
+        {
+            EquipAnimInProgress = true;
+            PlayAnimMontage(UnequipAnimMontage);
         }
     }
 
@@ -126,6 +126,36 @@ void USSPWeaponComponent::NextWeapon()
 void USSPWeaponComponent::Reload()
 {
     ChangeClip();
+}
+
+bool USSPWeaponComponent::GetCurrentWeaponUIData(FWeaponUIData& UIData) const
+{
+    if (CurrentWeapon)
+    {   
+        UIData = CurrentWeapon->GetCurrentUIData();
+        return true;
+    }
+    return false;
+}
+
+bool USSPWeaponComponent::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
+{
+    if (CurrentWeapon)
+    {
+        AmmoData = CurrentWeapon->GetCurrentAmmoData();
+        return true;
+    }
+    return false;
+}
+
+bool USSPWeaponComponent::GetCurrentWeaponType(ECharacterWeapon& WeaponType) const
+{
+    if (CurrentWeapon)
+    {
+        WeaponType = CurrentWeaponType;
+        return true;
+    }
+    return false;
 }
 
 void USSPWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage)
@@ -211,4 +241,5 @@ void USSPWeaponComponent::ChangeClip()
     if (!CurrentReloadAnimMontage) return;
     ReloadAnimInProgress = true;
     PlayAnimMontage(CurrentReloadAnimMontage);
+    UE_LOG(WeaponComponentLog, Error, TEXT("PlayAnimMontage(CurrentReloadAnimMontage);"));
 }

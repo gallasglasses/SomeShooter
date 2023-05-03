@@ -66,7 +66,7 @@ void ASSPBaseWeapon::DecreaseAmmo()
         return;
     }
     CurrentAmmo.Bullets--;
-    LogAmmo();
+    //LogAmmo();
 
     if (IsClipEmpty() && !IsAmmoEmpty())
     {
@@ -98,7 +98,7 @@ void ASSPBaseWeapon::ChangeClip()
     }
     CurrentAmmo.Bullets = DefaultAmmo.Bullets;
     UE_LOG(BaseWeaponLog, Display, TEXT("--------------CHANGE CLIP--------------"));
-    LogAmmo();
+    //LogAmmo();
 }
 
 bool ASSPBaseWeapon::CanReload() const

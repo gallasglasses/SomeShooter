@@ -16,6 +16,13 @@ class SOMESHOOTERPROJECT_API ASSPGameHUD : public AHUD
 
 		virtual void DrawHUD() override;
 
+	protected:
+
+		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+		TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
+
+		virtual void BeginPlay() override;
+
 	private:
 
 		void DrawCrossHair();
