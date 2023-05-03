@@ -27,6 +27,8 @@ public:
 
 	float GetHealth() const { return Health; }
 
+	bool TryToAddHealth(int32 HealthAmount);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0.0", ClampMax = "100.00"))
@@ -45,6 +47,8 @@ protected:
     float HealModifier = 5.0f;
 
 	virtual void BeginPlay() override;
+
+	bool IsHealthFull() const;
 
 private:	
 	float Health = 0.0f;

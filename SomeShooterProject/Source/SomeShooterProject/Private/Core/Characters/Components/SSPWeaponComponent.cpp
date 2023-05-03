@@ -158,6 +158,18 @@ bool USSPWeaponComponent::GetCurrentWeaponType(ECharacterWeapon& WeaponType) con
     return false;
 }
 
+bool USSPWeaponComponent::TryToAddAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType, int32 ClipsAmount)
+{
+    for (const auto& Weapon : MapWeapons) 
+    {
+        if (Weapon.Value && Weapon.Value->IsA(WeaponType))
+        {
+            return Weapon.Value->TryToAddAmmo(ClipsAmount);
+        }
+    }
+    return false;
+}
+
 void USSPWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage)
 {
     ACharacter* Character = Cast<ACharacter>(GetOwner());
@@ -226,9 +238,24 @@ bool USSPWeaponComponent::CanDoAction() const
     return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress;
 }
 
-void USSPWeaponComponent::OnEmptyClip()
+void USSPWeaponComponent::OnEmptyClip(ASSPBaseWeapon* EmptyWeapon)
 {
-    ChangeClip();    
+    if (!EmptyWeapon) return;
+
+    if (CurrentWeapon == EmptyWeapon)
+    {
+        ChangeClip();
+    }
+    else
+    {
+        for (const auto& Weapon : MapWeapons)
+        {
+            if (Weapon.Value && Weapon.Value == EmptyWeapon)
+            {
+                Weapon.Value->ChangeClip();
+            }
+        }
+    }
 }
 
 void USSPWeaponComponent::ChangeClip()
