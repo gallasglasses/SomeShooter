@@ -16,13 +16,16 @@ public:
 
 	USSPHealthComponent();
 
-	float GetHealth() const { return Health; }
+	FOnDeath OnDeath;
+	FOnHealthChanged OnHealthChanged;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Health")
     bool IsDead() const { return FMath::IsNearlyZero(Health); }
 
-	FOnDeath OnDeath;
-    FOnHealthChanged OnHealthChanged;
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	float GetHealthPercent() const { return Health / MaxHealth; }
+
+	float GetHealth() const { return Health; }
 
 protected:
 

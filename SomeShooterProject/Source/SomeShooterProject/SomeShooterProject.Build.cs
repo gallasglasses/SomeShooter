@@ -20,6 +20,7 @@ public class SomeShooterProject : ModuleRules
             "SomeShooterProject/Public/Core/Weapons",
             "SomeShooterProject/Public/Core/UI",
             "SomeShooterProject/Public/Core/Animations",
+            "SomeShooterProject/Public/Core/Pickups",
             "SomeShooterProject/Public/Core/",
             "SomeShooterProject/Public/"
         });
