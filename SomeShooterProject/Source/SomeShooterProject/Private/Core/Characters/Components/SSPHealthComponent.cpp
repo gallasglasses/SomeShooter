@@ -13,6 +13,13 @@ USSPHealthComponent::USSPHealthComponent()
 
 }
 
+bool USSPHealthComponent::TryToAddHealth(int32 HealthAmount)
+{
+    if (IsDead() || IsHealthFull() || HealthAmount <= 0) return false;
+    SetHealth(Health + HealthAmount);
+    return true;
+}
+
 void USSPHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -24,6 +31,11 @@ void USSPHealthComponent::BeginPlay()
 	{
         ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &USSPHealthComponent::OnTakeAnyDamage);
 	}
+}
+
+bool USSPHealthComponent::IsHealthFull() const
+{
+    return FMath::IsNearlyEqual(Health, MaxHealth);
 }
 
 void USSPHealthComponent::OnTakeAnyDamage(
@@ -51,7 +63,7 @@ void USSPHealthComponent::HealUpdate()
 {
     SetHealth(Health + HealModifier);
 
-    if (FMath::IsNearlyEqual(Health, MaxHealth)  && GetWorld())
+    if (IsHealthFull() && GetWorld())
 	{
         GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
 	}

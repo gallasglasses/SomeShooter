@@ -25,6 +25,7 @@ public:
     bool GetCurrentWeaponUIData(FWeaponUIData& UIData) const;
     bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
     bool GetCurrentWeaponType(ECharacterWeapon& WeaponType) const;
+    bool TryToAddAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType, int32 ClipsAmount);
     
 protected:
     
@@ -74,7 +75,7 @@ private:
 
     bool CanDoAction() const;
 
-    void OnEmptyClip();
+    void OnEmptyClip(ASSPBaseWeapon* EmptyWeapon);
     void ChangeClip();
 
 };
