@@ -8,7 +8,15 @@ public class SomeShooterProject : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] 
+		{ 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore",
+			"Niagara",
+			"PhysicsCore"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
@@ -18,9 +26,11 @@ public class SomeShooterProject : ModuleRules
 			"SomeShooterProject/Public/Core/Characters/Components",
             "SomeShooterProject/Public/Core/Interactables",
             "SomeShooterProject/Public/Core/Weapons",
+            "SomeShooterProject/Public/Core/Weapons/Components",
             "SomeShooterProject/Public/Core/UI",
             "SomeShooterProject/Public/Core/Animations",
             "SomeShooterProject/Public/Core/Pickups",
+            "SomeShooterProject/Public/Core/AI",
             "SomeShooterProject/Public/Core/",
             "SomeShooterProject/Public/"
         });

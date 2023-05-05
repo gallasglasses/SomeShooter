@@ -92,7 +92,7 @@ private:
     void OnStopSprinting();
     void CanFire();
     void OnDeath();
-    void OnHealthChanged(float Health);
+    void OnHealthChanged(float Health, float DeltaHealth);
 
 	bool bIsWalking = false;
     bool bIsJogging = true;
@@ -102,5 +102,4 @@ private:
 
     float DefaultMaxSpeed = 0.0f;
     float AccelerationTime = 0.0f;
-
 };

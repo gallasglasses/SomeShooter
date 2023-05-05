@@ -5,6 +5,8 @@
 #include "SSPCoreTypes.h"
 #include "SSPBaseWeapon.generated.h"
 
+class UParticleSystem;
+
 UCLASS()
 class SOMESHOOTERPROJECT_API ASSPBaseWeapon : public AActor
 {
@@ -29,8 +31,8 @@ public:
 
 protected:
 
-    /*UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    FName MuzzleSocketName = "Muzzle";*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+    FName MuzzleSocketName = "Muzzle";
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     float TraceMaxDistance = 1500.0f;
@@ -44,12 +46,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     FWeaponUIData UIData;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ParticleSystem")
+    UParticleSystem* MuzzleParticleSystem;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ParticleSystem")
+        float ParticleScale = 0.3f;
+
 	virtual void BeginPlay() override;
 	virtual void MakeShot();
 
     virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
-
-    //virtual FVector GetMuzzleWorldLocation() const;
 
     void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
     void MakeDamage(FHitResult& HitResult);
@@ -59,11 +65,16 @@ protected:
 
     bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
 
+    FVector GetMuzzleWorldLocation() const;
+    FTransform GetMuzzleWorldTransform() const;
+
     void DecreaseAmmo();
+    void LogAmmo();
+    virtual void SpawnMuzzleParticle();
+
     bool IsAmmoEmpty() const;
     bool IsClipEmpty() const;
     bool IsAmmoFull() const;
-    void LogAmmo();
 
 private:
     

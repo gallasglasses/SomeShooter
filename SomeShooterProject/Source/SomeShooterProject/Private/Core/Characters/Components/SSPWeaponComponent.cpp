@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Core/Animations/SSPEquipFinishedAnimNotify.h"
 #include "Core/Animations/SSPReloadFinishedAnimNotify.h"
+#include "Core/Animations/SSPLauncherEquipedAnimNotify.h"
 #include "Core/Animations/SSPAnimUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(WeaponComponentLog, All, All);
@@ -86,10 +87,12 @@ void USSPWeaponComponent::EquipWeapon(ECharacterWeapon WeaponType)
         {
             EquipAnimInProgress = true;
             PlayAnimMontage(EquipAnimMontage);
+
         }
         else if (WeaponType == ECharacterWeapon::Riffle && CurrentWeapon != *MapWeapons.Find(WeaponType))
         {
             EquipAnimInProgress = true;
+            bIsEquipLauncher = false;
             PlayAnimMontage(UnequipAnimMontage);
         }
     }
@@ -201,6 +204,17 @@ void USSPWeaponComponent::InitAnimations()
         UE_LOG(WeaponComponentLog, Error, TEXT("Equip anim notify is forgotten to set!"));
         checkNoEntry();
     }
+
+    auto LauncherEquipedNotify = AnimUtils::FindNotifyByClass<USSPLauncherEquipedAnimNotify>(LauncherEquipedAnimMontage);
+    if (LauncherEquipedNotify)
+    {
+        LauncherEquipedNotify->OnNotified.AddUObject(this, &USSPWeaponComponent::OnEquipedLauncher);
+    }
+    else
+    {
+        UE_LOG(WeaponComponentLog, Error, TEXT("EquipedLauncher anim notify is forgotten to set!"));
+        checkNoEntry();
+    }
     
     for (const auto& OneWeaponData : WeaponsData)
     {
@@ -219,9 +233,24 @@ void USSPWeaponComponent::OnEquipFinished(USkeletalMeshComponent* MeshComp)
 {
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character || Character->GetMesh() != MeshComp) return;
-    
+
+    if (CurrentWeaponType == ECharacterWeapon::ShotGun)
+    {
+        bIsEquipLauncher = true;
+        PlayAnimMontage(LauncherEquipedAnimMontage);
+    }
+
     EquipAnimInProgress = false;
     UE_LOG(WeaponComponentLog, Display, TEXT("OnEquipFinished!"));
+
+}
+
+void USSPWeaponComponent::OnEquipedLauncher(USkeletalMeshComponent* MeshComp)
+{
+    if (bIsEquipLauncher)
+    {
+        PlayAnimMontage(LauncherEquipedAnimMontage);
+    }
 }
 
 void USSPWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
