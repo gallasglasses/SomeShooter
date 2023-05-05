@@ -5,7 +5,9 @@
 #include "SSPHealthComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnDeath);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, float);
+
+class UCameraShakeBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOMESHOOTERPROJECT_API USSPHealthComponent : public UActorComponent
@@ -46,6 +48,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "AutoHeal"))
     float HealModifier = 5.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+		TSubclassOf<UCameraShakeBase> CameraShake;
+
 	virtual void BeginPlay() override;
 
 	bool IsHealthFull() const;
@@ -64,4 +69,5 @@ private:
 
 	void HealUpdate();
     void SetHealth(float NewHealth);
+	void PlayCameraShake();
 };

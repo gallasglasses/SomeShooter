@@ -4,6 +4,8 @@
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "Particles/ParticleSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All, All);
 
@@ -138,6 +140,11 @@ bool ASSPBaseWeapon::TryToAddAmmo(int32 ClipsAmount)
     return true;
 }
 
+FVector ASSPBaseWeapon::GetMuzzleWorldLocation() const
+{
+    return GetPlayer()->GetMesh()->GetSocketLocation(MuzzleSocketName);
+}
+
 void ASSPBaseWeapon::LogAmmo()
 {
     FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmmo.Bullets) + " / ";
@@ -145,15 +152,22 @@ void ASSPBaseWeapon::LogAmmo()
     UE_LOG(BaseWeaponLog, Display, TEXT("%s"), *AmmoInfo);
 }
 
+FTransform ASSPBaseWeapon::GetMuzzleWorldTransform() const
+{
+    return GetPlayer()->GetMesh()->GetSocketTransform(MuzzleSocketName);
+}
+
+void ASSPBaseWeapon::SpawnMuzzleParticle()
+{
+    FTransform SpawnTransform = GetMuzzleWorldTransform();
+    SpawnTransform.SetScale3D(SpawnTransform.GetScale3D() * ParticleScale);
+    UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleParticleSystem, SpawnTransform, true);
+}
+
 bool ASSPBaseWeapon::IsAmmoFull() const
 {
     return CurrentAmmo.Bullets == DefaultAmmo.Bullets && CurrentAmmo.Clips == DefaultAmmo.Clips;
 }
-
-//FVector ASSPBaseWeapon::GetMuzzleWorldLocation() const
-//{
-//
-//}
 
 bool ASSPBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
 {
@@ -176,6 +190,7 @@ void ASSPBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, c
 
     FCollisionQueryParams CollisionParams;
     CollisionParams.AddIgnoredActor(GetOwner());
+    CollisionParams.bReturnPhysicalMaterial = true;
 
     GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
 }

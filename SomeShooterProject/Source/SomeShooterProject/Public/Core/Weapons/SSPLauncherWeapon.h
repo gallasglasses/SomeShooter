@@ -17,13 +17,11 @@ public:
 
 protected:
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
-        FName MuzzleSocketName = "Muzzle_01";
+   /* UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+        FName MuzzleSocketName = "Muzzle_01";*/
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
         TSubclassOf<ASSPProjectile> ProjectileClass;
 
     virtual void MakeShot() override;
-    
-    FVector GetMuzzleWorldLocation() const;
 };

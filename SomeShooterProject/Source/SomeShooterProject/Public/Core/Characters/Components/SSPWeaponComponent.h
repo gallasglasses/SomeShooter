@@ -8,6 +8,8 @@
 class ASSPBaseWeapon;
 class UAnimMontage;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquipLauncher, bool);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOMESHOOTERPROJECT_API USSPWeaponComponent : public UActorComponent
 {
@@ -16,6 +18,8 @@ class SOMESHOOTERPROJECT_API USSPWeaponComponent : public UActorComponent
 public:	
 
 	USSPWeaponComponent();
+
+    FOnEquipLauncher OnEquipLauncher;
 
     void StartFire();
     void StopFire();
@@ -44,6 +48,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AnimMontage")
         UAnimMontage* UnequipAnimMontage;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animations")
+        UAnimMontage* LauncherEquipedAnimMontage;
+
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -64,6 +71,7 @@ private:
 
     bool EquipAnimInProgress = false;
     bool ReloadAnimInProgress = false;
+    bool bIsEquipLauncher = false;
 
     void SpawnWeapons();
     void EquipWeapon(ECharacterWeapon WeaponType);
@@ -72,6 +80,7 @@ private:
     void InitAnimations();
     void OnEquipFinished(USkeletalMeshComponent* MeshComp);
     void OnReloadFinished(USkeletalMeshComponent* MeshComp);
+    void OnEquipedLauncher(USkeletalMeshComponent* MeshComp);
 
     bool CanDoAction() const;
 

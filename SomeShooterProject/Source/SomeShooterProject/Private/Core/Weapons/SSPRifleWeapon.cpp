@@ -1,11 +1,20 @@
 #include "Core/Weapons/SSPRifleWeapon.h"
-
+#include "Core/Weapons/Components/SSPWeaponFXComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "Particles/ParticleSystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(RifleWeaponLog, All, All);
+
+ASSPRifleWeapon::ASSPRifleWeapon()
+{
+    WeaponFXComponent = CreateDefaultSubobject<USSPWeaponFXComponent>("WeaponFXComponent");
+}
 
 void ASSPRifleWeapon::StartFire()
 {
@@ -22,6 +31,13 @@ void ASSPRifleWeapon::StopFire()
     UE_LOG(RifleWeaponLog, Display, TEXT("Stop RifleFire"));
 }
 
+void ASSPRifleWeapon::BeginPlay()
+{
+    Super::BeginPlay();
+
+    check(WeaponFXComponent);
+}
+
 void ASSPRifleWeapon::MakeShot()
 {
     if (!GetWorld() || IsAmmoEmpty())
@@ -30,10 +46,6 @@ void ASSPRifleWeapon::MakeShot()
         return;
     }
 
-    /*const auto Player = GetPlayer();
-    if (!Player)
-        return;*/
-
     FVector TraceStart, TraceEnd;
     if (!GetTraceData(TraceStart, TraceEnd))
     {
@@ -41,22 +53,30 @@ void ASSPRifleWeapon::MakeShot()
         return;
     }
 
+    SpawnMuzzleParticle();
+
     FHitResult HitResult;
     MakeHit(HitResult, TraceStart, TraceEnd);
 
+    FVector TraceFXEnd = TraceEnd;
+
     if (HitResult.bBlockingHit)
     {
+        TraceFXEnd = HitResult.ImpactPoint;
         MakeDamage(HitResult);
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
-        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 24, FColor::Red, false, 5.0f);
 
+        //DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
+        //DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 24, FColor::Red, false, 5.0f);
         // UE_LOG(RifleWeaponLog, Display, TEXT("Hit Bone: %s"), *HitResult.BoneName.ToString());
+
+        WeaponFXComponent->PlayImpactFX(HitResult);
     }
-    else
+    /*else
     {
         DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::Silver, false, 3.0f, 0, 3.0f);
-    }
+    }*/
 
+    SpawnTraceFX(GetMuzzleWorldLocation(), TraceFXEnd);
     DecreaseAmmo();
 }
 
@@ -75,7 +95,11 @@ bool ASSPRifleWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
     return true;
 }
 
-FVector ASSPRifleWeapon::GetMuzzleWorldLocation() const
+void ASSPRifleWeapon::SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd)
 {
-    return GetPlayer()->GetMesh()->GetSocketLocation(MuzzleSocketName);
+    const auto TraceFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceFX, TraceStart);
+    if (TraceFXComponent)
+    {
+        TraceFXComponent->SetNiagaraVariableVec3(TraceTargetName, TraceEnd);
+    }
 }

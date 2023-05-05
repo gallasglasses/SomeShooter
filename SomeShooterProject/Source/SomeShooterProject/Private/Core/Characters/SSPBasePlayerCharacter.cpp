@@ -50,11 +50,13 @@ void ASSPBasePlayerCharacter::BeginPlay()
     check(HealthComponent);
     check(HealthTextComponent);
     check(GetCharacterMovement());
+    check(BaseWeaponComponent);
+    check(GetMesh());
 
     USSPCharacterMovementComponent* PlayerCharacterMovement = Cast<USSPCharacterMovementComponent>(GetCharacterMovement());
     DefaultMaxSpeed = PlayerCharacterMovement->GetMaxSpeed();
 
-    OnHealthChanged(HealthComponent->GetHealth());
+    OnHealthChanged(HealthComponent->GetHealth(), 0.f);
     HealthComponent->OnDeath.AddUObject(this, &ASSPBasePlayerCharacter::OnDeath);
     HealthComponent->OnHealthChanged.AddUObject(this, &ASSPBasePlayerCharacter::OnHealthChanged);
 
@@ -223,9 +225,14 @@ void ASSPBasePlayerCharacter::OnDeath()
 
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     BaseWeaponComponent->StopFire();
+
+    // Ragdoll: check PhysicsAsset
+    //It was for fun and it looked very ridiculous
+    /*GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    GetMesh()->SetSimulatePhysics(true);*/
 }
 
-void ASSPBasePlayerCharacter::OnHealthChanged(float Health) 
+void ASSPBasePlayerCharacter::OnHealthChanged(float Health, float DeltaHealth)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }

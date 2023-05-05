@@ -1,5 +1,5 @@
 #include "Core/Weapons/SSPProjectile.h"
-
+#include "Core/Weapons/Components/SSPWeaponFXComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h"
@@ -16,6 +16,7 @@ ASSPProjectile::ASSPProjectile()
 	CollisionComponent->InitSphereRadius(5.0f);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	CollisionComponent->bReturnMaterialOnMove = true;
 	SetRootComponent(CollisionComponent);
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>("ProjectileMesh");
@@ -24,6 +25,8 @@ ASSPProjectile::ASSPProjectile()
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 	MovementComponent->InitialSpeed = 2000.0f;
 	MovementComponent->ProjectileGravityScale = 0.0f;
+
+	WeaponFXComponent = CreateDefaultSubobject<USSPWeaponFXComponent>("WeaponFXComponent");
 }
 
 void ASSPProjectile::BeginPlay()
@@ -32,6 +35,7 @@ void ASSPProjectile::BeginPlay()
 
 	check(MovementComponent);
 	check(CollisionComponent);
+	check(WeaponFXComponent);
 
 	CollisionComponent->SetRelativeRotation((CollisionComponent->GetRelativeRotation()) + ActorRotator);
 
@@ -73,7 +77,9 @@ void ASSPProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* 
 		GetController(), //
 		DoFullDamage);
 
-	DrawDebugSphere(GetWorld(),GetActorLocation(), DamageRadius, 24, FColor::Magenta, false, 5.0f);
+	//DrawDebugSphere(GetWorld(),GetActorLocation(), DamageRadius, 24, FColor::Magenta, false, 5.0f);
+
+	WeaponFXComponent->PlayImpactFX(Hit);
 
 	Destroy();
 }

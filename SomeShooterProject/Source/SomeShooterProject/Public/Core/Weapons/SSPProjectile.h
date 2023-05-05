@@ -9,6 +9,7 @@
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
 class USphereComponent;
+class USSPWeaponFXComponent;
 
 UCLASS()
 class SOMESHOOTERPROJECT_API ASSPProjectile : public AActor
@@ -45,6 +46,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 		float LifeSeconds = 5.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+		USSPWeaponFXComponent* WeaponFXComponent;
 
 	virtual void BeginPlay() override;
 

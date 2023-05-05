@@ -33,3 +33,22 @@ bool USSPPlayerHUDWidget::IsPlayerSpectating() const
     
     return Controller && Controller->GetStateName() == NAME_Spectating;
 }
+
+bool USSPPlayerHUDWidget::Initialize()
+{
+    const auto HealthComponent = SSPUtils::GetPlayerComponent<USSPHealthComponent>(GetOwningPlayerPawn());
+    if (HealthComponent)
+    {
+        HealthComponent->OnHealthChanged.AddUObject(this, &USSPPlayerHUDWidget::OnHealthChanged);
+    }
+
+    return Super::Initialize();
+}
+
+void USSPPlayerHUDWidget::OnHealthChanged(float Health, float DeltaHealth)
+{
+    if (DeltaHealth < 0)
+    {
+        OnTakeDamage();
+    }
+}

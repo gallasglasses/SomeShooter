@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LauncherWeaponLog, All, All);
 
@@ -36,13 +37,15 @@ void ASSPLauncherWeapon::MakeShot()
     const FVector EndPoint = HitResult.bBlockingHit ? HitResult.ImpactPoint : TraceEnd;
     const FVector Direction = (EndPoint + GetMuzzleWorldLocation().GetSafeNormal());
     
+    SpawnMuzzleParticle();
+
     const FTransform SpawnTransform(FRotator::ZeroRotator, GetMuzzleWorldLocation());
     ASSPProjectile* Projectile = GetWorld()->SpawnActorDeferred<ASSPProjectile>(ProjectileClass, SpawnTransform);
     if (Projectile)
     {
         Projectile->SetShotDirection(Direction);
         Projectile->SetStartPosition(GetMuzzleWorldLocation());
-        //Projectile->SetActorRotator(GetPlayer()->GetMesh()->GetSocketRotation(MuzzleSocketName));
+        //Projectile->SetActorRotator(GetPlayer()->GetMesh()->GetSocketRotation());
         Projectile->SetActorRotator(GetPlayer()->GetBaseAimRotation());
         UE_LOG(LauncherWeaponLog, Display, TEXT("Direction: %s"), *Direction.ToString());
 
@@ -51,9 +54,4 @@ void ASSPLauncherWeapon::MakeShot()
     }
 
     DecreaseAmmo();
-}
-
-FVector ASSPLauncherWeapon::GetMuzzleWorldLocation() const
-{
-    return GetPlayer()->GetMesh()->GetSocketLocation(MuzzleSocketName);
 }
