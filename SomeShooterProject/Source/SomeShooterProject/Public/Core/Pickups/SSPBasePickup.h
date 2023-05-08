@@ -21,7 +21,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Pickup")
 	USphereComponent* CollisionComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Pickup")
 	UStaticMeshComponent* PickupMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
@@ -34,10 +34,13 @@ protected:
 public:	
 	
 	virtual void Tick(float DeltaTime) override;
+	bool CouldBeTaken() const;
 
 private:
 
 	float RotationYaw = 0.0f;
+
+	FTimerHandle RespawnTimerHandle;
 
 	virtual bool GivePickupTo(APawn* PlayerPawn);
 

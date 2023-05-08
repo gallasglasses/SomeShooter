@@ -28,6 +28,8 @@ public:
     FAmmoData GetCurrentAmmoData() const {return CurrentAmmo;};
 
     bool TryToAddAmmo(int32 ClipsAmount);
+    bool IsAmmoEmpty() const;
+    bool IsAmmoFull() const;
 
 protected:
 
@@ -72,9 +74,7 @@ protected:
     void LogAmmo();
     virtual void SpawnMuzzleParticle();
 
-    bool IsAmmoEmpty() const;
     bool IsClipEmpty() const;
-    bool IsAmmoFull() const;
 
 private:
     

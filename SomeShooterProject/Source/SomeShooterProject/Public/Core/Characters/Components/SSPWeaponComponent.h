@@ -21,18 +21,25 @@ public:
 
     FOnEquipLauncher OnEquipLauncher;
 
-    void StartFire();
+    virtual void StartFire();
     void StopFire();
-    void NextWeapon();
+    virtual void NextWeapon();
     void Reload();
 
     bool GetCurrentWeaponUIData(FWeaponUIData& UIData) const;
     bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
     bool GetCurrentWeaponType(ECharacterWeapon& WeaponType) const;
     bool TryToAddAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType, int32 ClipsAmount);
+    bool NeedAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType);
     
 protected:
-    
+
+    UPROPERTY()
+        ASSPBaseWeapon* CurrentWeapon = nullptr;
+
+    UPROPERTY()
+        TMap <ECharacterWeapon, ASSPBaseWeapon*> MapWeapons;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
         TMap <ECharacterWeapon, FWeaponData> WeaponsData;
     
@@ -51,40 +58,33 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animations")
         UAnimMontage* LauncherEquipedAnimMontage;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+        ECharacterWeapon CurrentWeaponType = ECharacterWeapon::Riffle;
+
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     void MakeShot();
+    void EquipWeapon(ECharacterWeapon WeaponType);
+
+    bool CanDoAction() const;
     
 private:
 
     UPROPERTY()
-    ASSPBaseWeapon* CurrentWeapon = nullptr;
-
-    UPROPERTY()
-    TMap <ECharacterWeapon, ASSPBaseWeapon*> MapWeapons;
-
-    UPROPERTY()
     UAnimMontage* CurrentReloadAnimMontage = nullptr;
-
-    ECharacterWeapon CurrentWeaponType = ECharacterWeapon::Riffle;
 
     bool EquipAnimInProgress = false;
     bool ReloadAnimInProgress = false;
     bool bIsEquipLauncher = false;
 
-    void SpawnWeapons();
-    void EquipWeapon(ECharacterWeapon WeaponType);
     void AttachWeaponToSocket(ASSPBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
-    void PlayAnimMontage(UAnimMontage* AnimMontage);
+    void ChangeClip();
     void InitAnimations();
     void OnEquipFinished(USkeletalMeshComponent* MeshComp);
     void OnReloadFinished(USkeletalMeshComponent* MeshComp);
     void OnEquipedLauncher(USkeletalMeshComponent* MeshComp);
-
-    bool CanDoAction() const;
-
     void OnEmptyClip(ASSPBaseWeapon* EmptyWeapon);
-    void ChangeClip();
-
+    void PlayAnimMontage(UAnimMontage* AnimMontage);
+    void SpawnWeapons();
 };
