@@ -105,8 +105,13 @@ void USSPWeaponComponent::EquipWeapon(ECharacterWeapon WeaponType)
 
 void USSPWeaponComponent::StartFire()
 {
-    if (!CanDoAction()) return;
+    if (!CanDoAction()) 
+    {
+        UE_LOG(WeaponComponentLog, Display, TEXT("Can't Do Action!"));
+        return;
+    }
 
+    UE_LOG(WeaponComponentLog, Display, TEXT("Can Do Action!"));
     CurrentWeapon->StartFire();
 }
 
@@ -168,6 +173,18 @@ bool USSPWeaponComponent::TryToAddAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType, i
         if (Weapon.Value && Weapon.Value->IsA(WeaponType))
         {
             return Weapon.Value->TryToAddAmmo(ClipsAmount);
+        }
+    }
+    return false;
+}
+
+bool USSPWeaponComponent::NeedAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType)
+{
+    for (const auto& Weapon : MapWeapons)
+    {
+        if (Weapon.Value && Weapon.Value->IsA(WeaponType))
+        {
+            return !Weapon.Value->IsAmmoFull();
         }
     }
     return false;

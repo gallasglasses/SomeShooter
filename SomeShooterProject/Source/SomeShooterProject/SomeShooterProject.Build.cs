@@ -15,7 +15,9 @@ public class SomeShooterProject : ModuleRules
 			"Engine", 
 			"InputCore",
 			"Niagara",
-			"PhysicsCore"
+			"PhysicsCore",
+			"GameplayTasks",
+			"NavigationSystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
@@ -31,6 +33,10 @@ public class SomeShooterProject : ModuleRules
             "SomeShooterProject/Public/Core/Animations",
             "SomeShooterProject/Public/Core/Pickups",
             "SomeShooterProject/Public/Core/AI",
+            "SomeShooterProject/Public/Core/AI/Services",
+            "SomeShooterProject/Public/Core/AI/Tasks",
+            "SomeShooterProject/Public/Core/AI/EQS",
+            "SomeShooterProject/Public/Core/AI/Decorators",
             "SomeShooterProject/Public/Core/",
             "SomeShooterProject/Public/"
         });

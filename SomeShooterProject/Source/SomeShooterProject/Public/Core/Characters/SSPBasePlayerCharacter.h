@@ -56,6 +56,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+    virtual void OnDeath();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -91,7 +93,6 @@ private:
     void OnStartSprinting();
     void OnStopSprinting();
     void CanFire();
-    void OnDeath();
     void OnHealthChanged(float Health, float DeltaHealth);
 
 	bool bIsWalking = false;

@@ -18,7 +18,7 @@ ASSPRifleWeapon::ASSPRifleWeapon()
 
 void ASSPRifleWeapon::StartFire()
 {
-    //UE_LOG(RifleWeaponLog, Display, TEXT("RifleFire!"));
+    UE_LOG(RifleWeaponLog, Display, TEXT("RifleFire!"));
 
     GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASSPRifleWeapon::MakeShot, TimeBetweenShots, true);
     MakeShot();

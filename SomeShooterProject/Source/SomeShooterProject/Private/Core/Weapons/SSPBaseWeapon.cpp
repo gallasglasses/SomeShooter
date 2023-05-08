@@ -52,11 +52,23 @@ APlayerController* ASSPBaseWeapon::GetPlayerController() const
 
 bool ASSPBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const
 {
-    const auto Controller = GetPlayerController();
-    if (!Controller)
-        return false;
+    const auto SSPCharacter = Cast<ACharacter>(GetOwner());
+    if (!SSPCharacter) return false;
 
-    Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    if (SSPCharacter->IsPlayerControlled())
+    {
+        const auto Controller = GetPlayerController();
+        if (!Controller) return false;
+
+        Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    }
+    else
+    {
+        ViewLocation = GetMuzzleWorldLocation();
+        //ViewRotation = GetMuzzleWorldTransform().GetRotation().Rotator();
+        ViewRotation = GetPlayer()->GetMesh()->GetSocketRotation(MuzzleSocketName);
+    }
+    
     return true;
 }
 
