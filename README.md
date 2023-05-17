@@ -6,6 +6,7 @@
 UMG UI:
 - [X] 1. Main Menu
 - [X] 2. Pause Menu
+- [X] 3. Player UI
 
 Enemy/NPC AI:
 - [X] 1. Enemies
