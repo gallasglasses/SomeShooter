@@ -37,16 +37,19 @@ protected:
 		float MaxHealth = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-	bool AutoHeal = true;
+		bool AutoHeal = true;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "AutoHeal"))
-	float HealUpdateTime = 1.0f;
+		float HealUpdateTime = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "AutoHeal"))
-	float HealDelay = 3.0f;
+		float HealDelay = 3.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "AutoHeal"))
-    float HealModifier = 5.0f;
+		float HealModifier = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+		bool FriendlyFire = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 		TSubclassOf<UCameraShakeBase> CameraShake;
@@ -70,4 +73,7 @@ private:
 	void HealUpdate();
     void SetHealth(float NewHealth);
 	void PlayCameraShake();
+	void Killed(AController* KillerController);
+
+	void ReportDamageEvent(float Damage, AController* InstigatedBy);
 };

@@ -31,6 +31,8 @@ public:
     bool IsAmmoEmpty() const;
     bool IsAmmoFull() const;
 
+    virtual void Zoom(bool Enabled) {}
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
@@ -63,7 +65,7 @@ protected:
     void MakeDamage(FHitResult& HitResult);
 
     ACharacter* GetPlayer() const;
-    APlayerController* GetPlayerController() const;
+    AController* GetPlayerController() const;
 
     bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
 

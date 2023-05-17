@@ -17,8 +17,10 @@ public class SomeShooterProject : ModuleRules
 			"Niagara",
 			"PhysicsCore",
 			"GameplayTasks",
-			"NavigationSystem"
-		});
+			"NavigationSystem",
+            "SlateCore",
+            "Slate",
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
@@ -37,6 +39,8 @@ public class SomeShooterProject : ModuleRules
             "SomeShooterProject/Public/Core/AI/Tasks",
             "SomeShooterProject/Public/Core/AI/EQS",
             "SomeShooterProject/Public/Core/AI/Decorators",
+            "SomeShooterProject/Public/Core/Menu",
+            "SomeShooterProject/Public/Core/Menu/UI",
             "SomeShooterProject/Public/Core/",
             "SomeShooterProject/Public/"
         });

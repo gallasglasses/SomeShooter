@@ -45,9 +45,9 @@ ACharacter* ASSPBaseWeapon::GetPlayer() const
     return !Cast<ACharacter>(GetOwner()) ? nullptr : Cast<ACharacter>(GetOwner());
 }
 
-APlayerController* ASSPBaseWeapon::GetPlayerController() const
+AController* ASSPBaseWeapon::GetPlayerController() const
 {
-    return !GetPlayer() ? nullptr : GetPlayer()->GetController<APlayerController>();
+    return !GetPlayer() ? nullptr : GetPlayer()->GetController<AController>();
 }
 
 bool ASSPBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const
@@ -111,7 +111,7 @@ void ASSPBaseWeapon::ChangeClip()
         CurrentAmmo.Clips--;
     }
     CurrentAmmo.Bullets = DefaultAmmo.Bullets;
-    UE_LOG(BaseWeaponLog, Display, TEXT("--------------CHANGE CLIP--------------"));
+    //UE_LOG(BaseWeaponLog, Display, TEXT("--------------CHANGE CLIP--------------"));
     //LogAmmo();
 }
 

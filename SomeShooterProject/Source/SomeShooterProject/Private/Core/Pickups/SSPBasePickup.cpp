@@ -69,7 +69,7 @@ void ASSPBasePickup::Respawn()
 void ASSPBasePickup::GenerateRotationYaw()
 {
 	const auto Direction = FMath::RandBool() ? 1.0f : -1.0f;
-	RotationYaw = FMath::RandRange(1.0f,2.0f) * Direction;
+	RotationYaw = FMath::RandRange(0.1f,0.6f) * Direction;
 }
 
 void ASSPBasePickup::NotifyActorBeginOverlap(AActor* OtherActor)

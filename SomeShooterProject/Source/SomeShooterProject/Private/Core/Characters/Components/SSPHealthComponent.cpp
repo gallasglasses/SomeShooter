@@ -1,5 +1,8 @@
 
 #include "Core/Characters/Components/SSPHealthComponent.h"
+#include "SomeShooterProjectGameModeBase.h"
+#include "SSPUtils.h"
+
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Controller.h"
@@ -7,6 +10,7 @@
 #include "TimerManager.h"
 //#include "Camera/CameraShake.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Perception/AISense_Damage.h"
 
 DEFINE_LOG_CATEGORY_STATIC(HealthComponentLog, All, All);
 
@@ -46,6 +50,19 @@ void USSPHealthComponent::OnTakeAnyDamage(
 {
     if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
 
+    if (!FriendlyFire)
+    {
+        const auto Player = Cast<APawn>(GetOwner());
+        if (!Player) return;
+
+        const auto Controller = Player->GetController<AController>();
+        if (!Controller) return;
+
+        const auto AreEnemies = SSPUtils::AreEnemies(Controller, InstigatedBy);
+
+        if(!AreEnemies) return;
+    }
+
     SetHealth(Health - Damage);
 
     GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
@@ -53,6 +70,7 @@ void USSPHealthComponent::OnTakeAnyDamage(
 
 	if (IsDead())
 	{
+        Killed(InstigatedBy);
         OnDeath.Broadcast();
 	}
 	else if (AutoHeal)
@@ -61,6 +79,7 @@ void USSPHealthComponent::OnTakeAnyDamage(
 	}
 
     PlayCameraShake();
+    ReportDamageEvent(Damage, InstigatedBy);
 }
 
 void USSPHealthComponent::HealUpdate() 
@@ -91,4 +110,24 @@ void USSPHealthComponent::PlayCameraShake()
     if (!Controller || !Controller->PlayerCameraManager) return;
 
     Controller->PlayerCameraManager->StartCameraShake(CameraShake);
+}
+
+void USSPHealthComponent::Killed(AController* KillerController)
+{
+    if (!GetWorld()) return;
+
+    const auto GameMode = Cast<ASomeShooterProjectGameModeBase>(GetWorld()->GetAuthGameMode());
+    if (!GameMode) return;
+
+    const auto Player = Cast<APawn>(GetOwner());
+    const auto VictimController = Player ? Player->Controller : nullptr;
+
+    GameMode->Killed(KillerController, VictimController);
+}
+
+void USSPHealthComponent::ReportDamageEvent(float Damage, AController* InstigatedBy)
+{
+    if(!InstigatedBy || !InstigatedBy->GetPawn() || !GetOwner()) return;
+
+    UAISense_Damage::ReportDamageEvent(GetWorld(), GetOwner(), InstigatedBy->GetPawn(), Damage, InstigatedBy->GetPawn()->GetActorLocation(), GetOwner()->GetActorLocation());
 }

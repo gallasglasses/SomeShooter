@@ -20,5 +20,15 @@ public:
 
 protected:
 
+	virtual void BeginPlay() override;
 	virtual void OnDeath() override;
+	virtual void OnHealthChanged(float Health, float DeltaHealth) override;
+
+private:
+
+	FTimerHandle UpdateHealthVisibilityTimer;
+
+	bool IsPlayerInDistance();
+	void UpdateHealthRotationByEnemy();
+	void UpdateHealthWidgetComponentByTimer();
 };

@@ -81,6 +81,7 @@ void USSPWeaponComponent::EquipWeapon(ECharacterWeapon WeaponType)
 
     if (CurrentWeapon)
     {
+        CurrentWeapon->Zoom(false);
         CurrentWeapon->StopFire();
         AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponArmorySocketName);
         if (WeaponType == ECharacterWeapon::ShotGun && CurrentWeapon != *MapWeapons.Find(WeaponType))
@@ -188,6 +189,14 @@ bool USSPWeaponComponent::NeedAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType)
         }
     }
     return false;
+}
+
+void USSPWeaponComponent::Zoom(bool Enabled)
+{
+    if (CurrentWeapon && CurrentWeaponType == ECharacterWeapon::Riffle)
+    {
+        CurrentWeapon->Zoom(Enabled);
+    }
 }
 
 void USSPWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage)

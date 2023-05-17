@@ -31,6 +31,19 @@ void ASSPRifleWeapon::StopFire()
     UE_LOG(RifleWeaponLog, Display, TEXT("Stop RifleFire"));
 }
 
+void ASSPRifleWeapon::Zoom(bool Enabled)
+{
+    const auto Controller = Cast<APlayerController>(GetPlayerController());
+    if(!Controller || !Controller->PlayerCameraManager) return;
+
+    if (Enabled)
+    {
+        DefaultCameraFOV = Controller->PlayerCameraManager ->GetFOVAngle();
+    }
+
+    Controller->PlayerCameraManager->SetFOV(Enabled ? FOVZoomAngle : DefaultCameraFOV);
+}
+
 void ASSPRifleWeapon::BeginPlay()
 {
     Super::BeginPlay();
