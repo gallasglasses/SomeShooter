@@ -32,6 +32,8 @@ public:
     bool TryToAddAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType, int32 ClipsAmount);
     bool NeedAmmo(TSubclassOf<ASSPBaseWeapon> WeaponType);
     
+    void Zoom(bool Enabled);
+
 protected:
 
     UPROPERTY()

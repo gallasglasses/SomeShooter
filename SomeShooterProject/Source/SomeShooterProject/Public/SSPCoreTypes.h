@@ -87,3 +87,63 @@ struct FImpactData
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
         FDecalData DecalData;
 };
+
+USTRUCT(BlueprintType)
+struct FGameData
+{
+    GENERATED_USTRUCT_BODY()
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = "1", ClampMax = "100"))
+        int32 PlayersNum = 2;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = "1", ClampMax = "10"))
+        int32 RoundsNum = 2;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = "3", ClampMax = "300"))
+        int32 RoundTime = 10;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+        FLinearColor DefaultTeamColor = FLinearColor::White;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+        TArray<FLinearColor> TeamColors;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+        FProgressBarStyle DefaultBarStyle;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+        TArray<FProgressBarStyle> TeamBarStyles;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = "3", ClampMax = "20"))
+        int32 RespawnTime = 10;
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMatchStateChangedSignature, ESSPMatchState);
+
+UENUM(BlueprintType)
+enum class ESSPMatchState: uint8
+{
+    WaitingToStart = 0,
+    InProgress,
+    Pause,
+    GameOver
+};
+
+USTRUCT(BlueprintType)
+struct FLevelData
+{
+    GENERATED_USTRUCT_BODY()
+
+        UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
+        FName LevelName = NAME_None;
+
+        UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
+        FName LevelDisplayName = NAME_None;
+
+        UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
+        UTexture2D* LevelThumb;
+
+
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelSelectedSignature, const FLevelData&);

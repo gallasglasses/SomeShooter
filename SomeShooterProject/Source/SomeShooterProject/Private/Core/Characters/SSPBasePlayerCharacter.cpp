@@ -6,49 +6,36 @@
 #include "Core/Characters/Components/SSPHealthComponent.h"
 #include "Core/Characters/Components/SSPWeaponComponent.h"
 #include "Core/Weapons/SSPBaseWeapon.h"
+#include "Core/UI/SSPHealthBarWidget.h"
 
-#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
-#include "Components/TextRenderComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
+#include "Components/WidgetComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BasePlayerCharacterLog, All, All);
 
-// Sets default values
 ASSPBasePlayerCharacter::ASSPBasePlayerCharacter(const FObjectInitializer& ObjInit):Super(
     ObjInit.SetDefaultSubobjectClass<USSPCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-    SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-    SpringArmComponent->SetupAttachment(GetRootComponent());
-    SpringArmComponent->bUsePawnControlRotation = true;
-    SpringArmComponent->TargetArmLength = 300.0f;
-    //SpringArmComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
-    SpringArmComponent->SocketOffset = FVector(0.0f, 50.0f, 70.0f);
-
-    CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-    CameraComponent->SetupAttachment(SpringArmComponent);
+ 	PrimaryActorTick.bCanEverTick = true;
 
     HealthComponent = CreateDefaultSubobject<USSPHealthComponent>("HealthComponent");
 
-    HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
-    HealthTextComponent->SetupAttachment(GetRootComponent());
-    HealthTextComponent->SetOwnerNoSee(true);
-
     BaseWeaponComponent = CreateDefaultSubobject<USSPWeaponComponent>("BaseWeaponComponent");
+
+    HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("HealthWidgetComponent");
+    HealthWidgetComponent->SetupAttachment(GetRootComponent());
+    HealthWidgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 140.0f));
+    HealthWidgetComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+    HealthWidgetComponent->SetDrawAtDesiredSize(true);
+    HealthWidgetComponent->SetOwnerNoSee(true);
 }
 
-// Called when the game starts or when spawned
 void ASSPBasePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
     check(HealthComponent);
-    check(HealthTextComponent);
     check(GetCharacterMovement());
     check(BaseWeaponComponent);
     check(GetMesh());
@@ -63,137 +50,24 @@ void ASSPBasePlayerCharacter::BeginPlay()
     LandedDelegate.AddDynamic(this, &ASSPBasePlayerCharacter::OnGroundLanded);
 }
 
-// Called every frame
 void ASSPBasePlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-    if (bIsMoving)
-    {
-        AccelerationTime += DeltaTime;
-    }
-    else
-    {
-        AccelerationTime = 0;
-    }
-}
-
-// Called to bind functionality to input
-void ASSPBasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-    check(PlayerInputComponent);
-    check(BaseWeaponComponent);
-
-    //Axis Mapping
-    PlayerInputComponent->BindAxis("MoveForward", this, &ASSPBasePlayerCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &ASSPBasePlayerCharacter::MoveRight);
-    PlayerInputComponent->BindAxis("LookUp", this, &ASSPBasePlayerCharacter::AddControllerPitchInput);
-    PlayerInputComponent->BindAxis("TurnAround", this, &ASSPBasePlayerCharacter::AddControllerYawInput);
-
-    //Action Mapping
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASSPBasePlayerCharacter::Jump);
-
-    PlayerInputComponent->BindAction("Jog", IE_Pressed, this, &ASSPBasePlayerCharacter::SwitchWalkToJog);
-
-    PlayerInputComponent->BindAction("Run", IE_DoubleClick, this, &ASSPBasePlayerCharacter::OnStartRunning);
-
-    PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASSPBasePlayerCharacter::OnStartSprinting);
-    PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASSPBasePlayerCharacter::OnStopSprinting);
-
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASSPBasePlayerCharacter::CanFire);
-    PlayerInputComponent->BindAction("Fire", IE_Released, BaseWeaponComponent, &USSPWeaponComponent::StopFire);
-
-    PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, BaseWeaponComponent, &USSPWeaponComponent::NextWeapon);
-
-    PlayerInputComponent->BindAction("Reload", IE_Pressed, BaseWeaponComponent, &USSPWeaponComponent::Reload);
-}
-
-void ASSPBasePlayerCharacter::MoveForward(float Amount)
-{
-    bIsMoving = !GetVelocity().IsZero();
-
-    USSPCharacterMovementComponent* PlayerCharacterMovement = Cast<USSPCharacterMovementComponent>(GetCharacterMovement());
-
-    if (bIsMoving && (bIsJogging || bIsSprinting))
-    {
-        PlayerCharacterMovement->MaxWalkSpeed =
-            FMath::FInterpTo(DefaultMaxSpeed, DefaultMaxSpeed * PlayerCharacterMovement->GetNewSpeed(), AccelerationTime, InterpSpeed);
-    }
-    else
-    {
-        PlayerCharacterMovement->MaxWalkSpeed = DefaultMaxSpeed;
-    }
-
-	AddMovementInput(GetActorForwardVector(), Amount);
-}
-
-void ASSPBasePlayerCharacter::MoveRight(float Amount)
-{
-    bIsMoving = !GetVelocity().IsZero();
-
-    USSPCharacterMovementComponent* PlayerCharacterMovement = Cast<USSPCharacterMovementComponent>(GetCharacterMovement());
-    
-    if (bIsMoving && (bIsJogging || bIsSprinting))
-    {
-        PlayerCharacterMovement->MaxWalkSpeed =
-            FMath::FInterpTo(DefaultMaxSpeed, DefaultMaxSpeed * PlayerCharacterMovement->GetNewSpeed(), AccelerationTime, InterpSpeed);
-    }
-    else
-    {
-        PlayerCharacterMovement->MaxWalkSpeed = DefaultMaxSpeed;
-    }
-
-    AddMovementInput(GetActorRightVector(), Amount);
-}
-
-void ASSPBasePlayerCharacter::SwitchWalkToJog()
-{
-    bIsJogging = bIsWalking;
-    bIsWalking = !bIsJogging;
-}
-
-void ASSPBasePlayerCharacter::OnStartRunning()
-{
-    bIsRunning = true;
-}
-
-void ASSPBasePlayerCharacter::OnStopRunning()
-{
-    bIsRunning = false;
-}
-
-void ASSPBasePlayerCharacter::OnStartSprinting()
-{
-    bIsSprinting = true;
-    BaseWeaponComponent->StopFire();
-}
-
-void ASSPBasePlayerCharacter::OnStopSprinting()
-{
-    bIsSprinting = false;
-}
-
-void ASSPBasePlayerCharacter::CanFire()
-{
-    if (bIsSprinting) return;
-
-    BaseWeaponComponent->StartFire();
 }
 
 bool ASSPBasePlayerCharacter::IsSprinting() const
 {
-    return bIsSprinting && !GetVelocity().IsZero();
+    return false;
 }
 
 bool ASSPBasePlayerCharacter::IsJogging() const
 {
-    return bIsJogging && !GetVelocity().IsZero();
+    return false;
 }
 
 bool ASSPBasePlayerCharacter::IsWalking() const
 {
-    return bIsWalking && !GetVelocity().IsZero();
+    return false;
 }
 
 float ASSPBasePlayerCharacter::GetMovementDirection() const
@@ -209,6 +83,33 @@ float ASSPBasePlayerCharacter::GetMovementDirection() const
     return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 }
 
+void ASSPBasePlayerCharacter::SetPlayerColor(const FLinearColor& Color)
+{
+    const auto NumMaterials = GetMesh()->GetMaterials().Num();
+    
+    for (size_t i = 0; i < NumMaterials; i++)
+    {
+        const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(i);
+        if(!MaterialInst) return;
+
+        MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
+    }
+
+    //// for one material in mesh
+    //const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+    //if(!MaterialInst) return;
+
+    //MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
+}
+
+void ASSPBasePlayerCharacter::SetHealthBarStyle(const FProgressBarStyle& BarStyle)
+{
+    const auto HealthBarWidget = Cast<USSPHealthBarWidget>(HealthWidgetComponent->GetUserWidgetObject());
+    if (!HealthBarWidget) return;
+
+    HealthBarWidget->SetHealthBarStyle(BarStyle);
+}
+
 void ASSPBasePlayerCharacter::OnDeath() 
 {
     UE_LOG(BasePlayerCharacterLog, Display, TEXT("Player %s is dead!"), *GetName());
@@ -218,13 +119,9 @@ void ASSPBasePlayerCharacter::OnDeath()
     GetCharacterMovement()->DisableMovement();
     SetLifeSpan(LifeSpanOnDeath);
 
-    if (Controller)
-    {
-        Controller->ChangeState(NAME_Spectating);
-    }
-
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     BaseWeaponComponent->StopFire();
+    BaseWeaponComponent->Zoom(false);
 
     // Ragdoll: check PhysicsAsset
     //It was for fun and it looked very ridiculous
@@ -234,7 +131,7 @@ void ASSPBasePlayerCharacter::OnDeath()
 
 void ASSPBasePlayerCharacter::OnHealthChanged(float Health, float DeltaHealth)
 {
-    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+    
 }
 
 void ASSPBasePlayerCharacter::OnGroundLanded(const FHitResult& Hit)
